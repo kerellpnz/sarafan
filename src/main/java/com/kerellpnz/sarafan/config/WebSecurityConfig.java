@@ -17,15 +17,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .antMatcher("/**")
-                .authorizeRequests()
+                    .authorizeRequests()
                 .antMatchers("/", "/login**", "/static/**", "/error**")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
                 .and()
-                .oauth2Login()
+                    .oauth2Login()
                 .and()
-                .csrf().disable();
+                    .logout().logoutSuccessUrl("/").permitAll()
+                .and()
+                    .csrf().disable();
     }
 
 //    @Bean

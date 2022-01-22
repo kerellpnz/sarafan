@@ -1,6 +1,7 @@
 package com.kerellpnz.sarafan.controller;
 
 import com.kerellpnz.sarafan.domain.User;
+import com.kerellpnz.sarafan.repo.MessageRepo;
 import com.kerellpnz.sarafan.repo.UserDetailsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,8 +19,14 @@ import java.util.HashMap;
 @RequestMapping("/")
 public class MainController {
 
+    private final UserDetailsRepo userDetailsRepo;
+    private final MessageRepo messageRepo;
+
     @Autowired
-    private UserDetailsRepo userDetailsRepo;
+    public MainController(UserDetailsRepo userDetailsRepo, MessageRepo messageRepo) {
+        this.userDetailsRepo = userDetailsRepo;
+        this.messageRepo = messageRepo;
+    }
 
     @GetMapping("/user")
     @ResponseBody
@@ -38,14 +45,17 @@ public class MainController {
         return userDetailsRepo.save(user);
     }
 
-//    @GetMapping
-//    public String main(Model model, @AuthenticationPrincipal User user) {
-//        HashMap<Object, Object> data = new HashMap<>();
-//
-//        data.put("profile", user);
-//        data.put("messages", null);
-//
-//        model.addAttribute("frontendData", data);
-//        return "index";
-//    }
+    @GetMapping
+    public String main(Model model, @AuthenticationPrincipal OAuth2User principal) {
+        User user = null;
+        if (principal != null) {
+            user = userDetailsRepo.findById(principal.getAttribute("sub")).get();
+        }
+        HashMap<Object, Object> data = new HashMap<>();
+
+        data.put("profile", user);
+        data.put("messages", messageRepo.findAll());
+        model.addAttribute("frontendData", data);
+        return "index";
+    }
 }
